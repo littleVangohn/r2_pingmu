@@ -1,0 +1,37 @@
+weapon_docking_node:
+  ros__parameters:
+    camera_index: 0
+    frame_width: 1280
+    frame_height: 800
+    frame_fps: 120
+    frame_fourcc: "MJPG"
+    buffer_size: 1
+    enable_ui: true
+    fx: 956.80819
+    fy: 956.46353
+    cx: 653.72184
+    cy: 358.43826
+    dist_k1: -0.005408
+    dist_k2: 0.029448
+    dist_p1: -0.000804
+    dist_p2: -0.00107
+    dist_k3: 0.0
+    tag_size_m: 0.06
+    target_tag_id: 56
+    aruco_dictionary_size: 1000
+    aruco_marker_bits: 6
+    aruco_dictionary_seed: 0
+    tolerance_dist: 0.01
+    linear_x_kp: 1.5
+    linear_x_ki: 0.01
+    linear_x_kd: 0.02
+    linear_y_kp: 0.45
+    linear_y_ki: 0.0
+    linear_y_kd: 0.0
+    angular_kp: 2.2
+    angular_ki: 0.01
+    angular_kd: 0.02
+    max_linear_speed: 0.3
+    max_angular_speed: 0.8
+    hold_position_tolerance: 0.01
+    hold_angle_tolerance: 0.01
