@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>比赛场地颜色切换 UI</title>
+  <style>
+    :root {
+      --red: #df5f52;
+      --blue: #5ab3c8;
+      --block-green: #2d7c3d;
+      --block-dark-green: #285d25;
+      --block-light-green: #adb86c;
+      --block-red: #df3328;
+      --block-blue: #2326ef;
+      --team-orange: #ecaa3d;
+      --soft-line: rgba(255, 255, 255, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #111;
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      user-select: none;
+    }
+
+    .arena {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--red);
+      cursor: pointer;
+    }
+
+    .arena[data-bg="blue"] {
+      background: var(--blue);
+    }
+
+    .platform {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      width: min(66vw, 112vh);
+      aspect-ratio: 4 / 3;
+      gap: clamp(4px, 0.5vw, 8px);
+      padding: clamp(6px, 0.7vw, 10px);
+      border: 2px solid var(--soft-line);
+      background: rgba(255, 255, 255, 0.08);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2);
+      cursor: default;
+    }
+
+    .team-logo {
+      position: absolute;
+      left: clamp(18px, 2vw, 34px);
+      top: clamp(18px, 2vw, 34px);
+      z-index: 2;
+      width: min(30vw, 54vh, 560px);
+      height: auto;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+      transform: translate(-25%, -23%);
+    }
+
+    .distribution {
+      position: absolute;
+      left: calc((100vw + min(66vw, 112vh)) / 2 + (100vw - min(66vw, 112vh)) / 4);
+      top: 50%;
+      z-index: 3;
+      width: min(14vw, 230px);
+      color: var(--team-orange);
+      font-family: Consolas, "Microsoft YaHei", monospace;
+      font-size: clamp(20px, 2.1vw, 38px);
+      font-weight: 800;
+      line-height: 1.35;
+      letter-spacing: 0;
+      text-align: center;
+      white-space: pre;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .distribution-title {
+      display: block;
+      margin-bottom: 0.25em;
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      font-size: clamp(16px, 1.5vw, 26px);
+      white-space: nowrap;
+    }
+
+    .block {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      min-height: 0;
+      border: 0;
+      background: var(--block-green);
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .block:nth-child(1),
+    .block:nth-child(3),
+    .block:nth-child(8),
+    .block:nth-child(9) {
+      background: var(--block-dark-green);
+    }
+
+    .block:nth-child(6),
+    .block:nth-child(11) {
+      background: var(--block-light-green);
+    }
+
+    .block[data-color="red"] {
+      background: var(--block-red);
+    }
+
+    .block[data-color="blue"] {
+      background: var(--block-blue);
+    }
+
+    .block[data-color="fake-kfs"] {
+      background: var(--team-orange);
+    }
+
+    .switcher {
+      position: fixed;
+      right: 14px;
+      top: 14px;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+    }
+
+    .fullscreen-button {
+      position: fixed;
+      left: 14px;
+      top: 14px;
+      z-index: 10;
+      height: 42px;
+      padding: 0 14px;
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.32);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .color-button {
+      width: 42px;
+      height: 42px;
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+    }
+
+    .color-button.red {
+      background: var(--red);
+    }
+
+    .color-button.blue {
+      background: var(--blue);
+    }
+
+    @media (orientation: portrait) {
+      .arena {
+        width: 100vh;
+        height: 100vw;
+        transform: rotate(90deg) translateY(-100%);
+        transform-origin: left top;
+      }
+
+      .switcher {
+        right: 10px;
+        top: 10px;
+      }
+
+      .fullscreen-button {
+        left: 10px;
+        top: 10px;
+      }
+
+      .team-logo {
+        left: clamp(12px, 3vw, 28px);
+        top: clamp(12px, 3vw, 28px);
+        width: min(30vw, 50vh, 460px);
+      }
+
+      .distribution {
+        left: calc((100vh + min(66vh, 112vw)) / 2 + (100vh - min(66vh, 112vw)) / 4);
+        width: min(14vw, 190px);
+        font-size: clamp(18px, 2vw, 32px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="arena" data-bg="red" aria-label="比赛场地">
+    <img class="team-logo" src="队徽.png" alt="RC 队徽">
+
+    <section class="platform" aria-label="十二个可变色方块">
+      <button class="block" type="button" aria-label="方块 1"></button>
+      <button class="block" type="button" aria-label="方块 2"></button>
+      <button class="block" type="button" aria-label="方块 3"></button>
+      <button class="block" type="button" aria-label="方块 4"></button>
+      <button class="block" type="button" aria-label="方块 5"></button>
+      <button class="block" type="button" aria-label="方块 6"></button>
+      <button class="block" type="button" aria-label="方块 7"></button>
+      <button class="block" type="button" aria-label="方块 8"></button>
+      <button class="block" type="button" aria-label="方块 9"></button>
+      <button class="block" type="button" aria-label="方块 10"></button>
+      <button class="block" type="button" aria-label="方块 11"></button>
+      <button class="block" type="button" aria-label="方块 12"></button>
+    </section>
+
+    <div class="distribution" aria-label="梅林格子分布">
+      <span class="distribution-title">梅林格子</span><span class="distribution-grid">0 0 0 0
+0 0 0 0
+0 0 0 0</span>
+    </div>
+  </main>
+
+  <button class="fullscreen-button" type="button">全屏</button>
+  <div class="switcher" aria-label="背景颜色切换">
+    <button class="color-button red" data-bg-choice="red" type="button" aria-label="红色背景"></button>
+    <button class="color-button blue" data-bg-choice="blue" type="button" aria-label="蓝色背景"></button>
+  </div>
+  <script>
+    const arena = document.querySelector(".arena");
+    const blocks = document.querySelectorAll(".block");
+    const bgButtons = document.querySelectorAll("[data-bg-choice]");
+    const fullscreenButton = document.querySelector(".fullscreen-button");
+    const platform = document.querySelector(".platform");
+    const distributionGrid = document.querySelector(".distribution-grid");
+    const blockColors = ["base", "red", "blue", "fake-kfs"];
+
+    function toggleBackground() {
+      arena.dataset.bg = arena.dataset.bg === "red" ? "blue" : "red";
+    }
+
+    arena.addEventListener("click", toggleBackground);
+
+    platform.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+
+    bgButtons.forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        arena.dataset.bg = button.dataset.bgChoice;
+      });
+    });
+
+    async function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+        fullscreenButton.textContent = "退出全屏";
+        return;
+      }
+
+      await document.exitFullscreen();
+      fullscreenButton.textContent = "全屏";
+    }
+
+    fullscreenButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleFullscreen();
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      fullscreenButton.textContent = document.fullscreenElement ? "退出全屏" : "全屏";
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key.toLowerCase() === "f") {
+        toggleFullscreen();
+      }
+    });
+
+    function renderDistribution() {
+      const values = Array.from(blocks, (block) => {
+        if (block.dataset.color === "red") {
+          return "1";
+        }
+
+        if (block.dataset.color === "blue") {
+          return "2";
+        }
+
+        if (block.dataset.color === "fake-kfs") {
+          return "3";
+        }
+
+        return "0";
+      });
+
+      distributionGrid.textContent = [
+        values.slice(0, 4).join(" "),
+        values.slice(4, 8).join(" "),
+        values.slice(8, 12).join(" ")
+      ].join("\n");
+    }
+
+    blocks.forEach((block) => {
+      block.dataset.color = "base";
+      block.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const currentIndex = blockColors.indexOf(block.dataset.color);
+        const nextIndex = (currentIndex + 1) % blockColors.length;
+        block.dataset.color = blockColors[nextIndex];
+        renderDistribution();
+      });
+    });
+
+    renderDistribution();
+  </script>
+</body>
+</html>
